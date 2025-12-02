@@ -6165,6 +6165,12 @@ Activities taking significantly longer than average:
   }
 );
 
+server.serveHttp({ port: 8080 });
+console.log("MCP server listening on HTTP port 8080");
+
+
+
+
 // ====================================
 // INTEGRATION INSTRUCTIONS
 // ====================================
