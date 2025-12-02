@@ -8,6 +8,8 @@ import { SimulationService } from './simulation-service.js';
 import { MicrosoftAuthClient, AuthMethod, AuthResult } from './auth-client.js';
 import http from 'http';
 import url from 'url';
+import { StreamableHttpServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
+
 // Migration tools
 import { 
   migrationTools,
@@ -6165,7 +6167,10 @@ Activities taking significantly longer than average:
   }
 );
 
-server.run({ port: 8080 });
+
+// Serve MCP over HTTP on port 8080
+const transport = new StreamableHttpServerTransport({ port: 8080 });
+await server.connect(transport);
 console.log("MCP server listening on HTTP port 8080");
 
 
