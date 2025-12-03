@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 
-import express from 'express';
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
@@ -9,8 +8,8 @@ import { SimulationService } from './simulation-service.js';
 import { MicrosoftAuthClient, AuthMethod, AuthResult } from './auth-client.js';
 import http from 'http';
 import url from 'url';
-import { createServer } from 'http';
-import { createMcpHttpServer } from "@modelcontextprotocol/sdk/server/mcpHttpServer.js";
+import { HttpServerTransport } from "@modelcontextprotocol/sdk/server/http.js";
+
 
 // Migration tools
 import { 
@@ -6168,37 +6167,16 @@ Activities taking significantly longer than average:
     };
   }
 );
-// HTTP endpoint for MCP (port 8080 with Express)
-const PORT = 8080;
-const app = express();
-app.use(express.json());  // Parse JSON bodies
 
-app.post('/mcp', async (req, res) => {
-  try {
-    // Handle MCP JSON-RPC request
-    await server.handleRequest(req, res, req.body);
-  } catch (error) {
-    console.error('MCP request error:', error);
-    res.status(500).json({ 
-      jsonrpc: '2.0', 
-      error: { code: -32603, message: 'Internal server error' }, 
-      id: req.body.id 
-    });
-  }
+// Serve MCP over HTTP on port 8080 (SDK transport)
+console.log("Starting MCP HTTP transport...");
+const transport = new HttpServerTransport({
+  port: 8080,
+  host: '0.0.0.0'  // Bind to all interfaces
 });
+await server.connect(transport);
+console.log("MCP HTTP transport connected on 0.0.0.0:8080");
 
-// Optional: CORS if needed for browser/Claude
-app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', '*');
-  res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Content-Type');
-  if (req.method === 'OPTIONS') res.sendStatus(200);
-  else next();
-});
-
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`MCP HTTP server listening on 0.0.0.0:${PORT}/mcp`);
-});
 
 // ====================================
 // INTEGRATION INSTRUCTIONS
