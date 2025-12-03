@@ -8,7 +8,7 @@ import { SimulationService } from './simulation-service.js';
 import { MicrosoftAuthClient, AuthMethod, AuthResult } from './auth-client.js';
 import http from 'http';
 import url from 'url';
-import { StreamableHttpServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
+import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 
 // Migration tools
 import { 
