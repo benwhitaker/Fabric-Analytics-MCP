@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+import express from 'express';
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
@@ -6167,15 +6168,37 @@ Activities taking significantly longer than average:
     };
   }
 );
-
-// HTTP endpoint for MCP (port 8080)
+// HTTP endpoint for MCP (port 8080 with Express)
 const PORT = 8080;
-const httpServer = createServer(createMcpHttpServer(server));
+const app = express();
+app.use(express.json());  // Parse JSON bodies
 
-httpServer.listen(PORT, "0.0.0.0", () => {
-  console.log(`MCP HTTP endpoint ready at http://0.0.0.0:${PORT}`);
+app.post('/mcp', async (req, res) => {
+  try {
+    // Handle MCP JSON-RPC request
+    await server.handleRequest(req, res, req.body);
+  } catch (error) {
+    console.error('MCP request error:', error);
+    res.status(500).json({ 
+      jsonrpc: '2.0', 
+      error: { code: -32603, message: 'Internal server error' }, 
+      id: req.body.id 
+    });
+  }
 });
 
+// Optional: CORS if needed for browser/Claude
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type');
+  if (req.method === 'OPTIONS') res.sendStatus(200);
+  else next();
+});
+
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`MCP HTTP server listening on 0.0.0.0:${PORT}/mcp`);
+});
 
 // ====================================
 // INTEGRATION INSTRUCTIONS
