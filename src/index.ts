@@ -6167,9 +6167,8 @@ Activities taking significantly longer than average:
   }
 );
 
-
 // Serve MCP over HTTP on port 8080
-const transport = new StreamableHttpServerTransport({ port: 8080 });
+const transport = new StreamableHTTPServerTransport({ port: 8080 });
 await server.connect(transport);
 console.log("MCP server listening on HTTP port 8080");
 
