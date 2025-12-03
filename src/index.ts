@@ -9,6 +9,7 @@ import { MicrosoftAuthClient, AuthMethod, AuthResult } from './auth-client.js';
 import http from 'http';
 import url from 'url';
 import { createServer } from 'http';
+import { createMcpHttpServer } from "@modelcontextprotocol/sdk/server/mcpHttpServer.js";
 
 // Migration tools
 import { 
@@ -6167,18 +6168,14 @@ Activities taking significantly longer than average:
   }
 );
 
-
-// Serve MCP over HTTP on port 8080 (official SDK example)
-console.log("Starting HTTP server for MCP...");
-const httpServer = createServer(async (req, res) => {
-  // Handle Streamable HTTP protocol
-  await server.run(req, res);
-});
-
+// HTTP endpoint for MCP (port 8080)
 const PORT = 8080;
-httpServer.listen(PORT, '0.0.0.0', () => {
-  console.log(`MCP HTTP server listening on 0.0.0.0:${PORT}`);
+const httpServer = createServer(createMcpHttpServer(server));
+
+httpServer.listen(PORT, "0.0.0.0", () => {
+  console.log(`MCP HTTP endpoint ready at http://0.0.0.0:${PORT}`);
 });
+
 
 // ====================================
 // INTEGRATION INSTRUCTIONS
